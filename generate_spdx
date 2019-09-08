@@ -30,6 +30,8 @@ folder_id = 1
 #By default, previous data of fossology will not be used.
 reuse = False
 
+delaytime = 30
+
 if args.config is not None:
     [token, url] = args.config.split('@',1)
 else:
@@ -48,8 +50,6 @@ if os.path.exists(dstPath) == False:
 
 if args.reuse:
     reuse = True
-
-delaytime = 30
 
 """Check if the folder is exist"""
 if args.folder is not None:
@@ -125,7 +125,7 @@ def has_uploaded(tar_file):
     has_uploaded_ret = str(has_uploaded_ret, encoding = "utf-8")
     has_uploaded_ret = eval(has_uploaded_ret)
     if len(has_uploaded_ret) == 0:
-        bb.note("No archive has been uploaded.")
+        print("No archive has been uploaded.")
         return False
     for i in range(0, len(has_uploaded_ret)):
         if has_uploaded_ret[i]["uploadname"] == file_name:
@@ -178,7 +178,7 @@ def analysis(upload_id):
                     + " --noproxy 127.0.0.1"
     print("Analysis upload_id :%s" % upload_id)
     #print("Invoke rest_api_cmd = " + rest_api_cmd )
-    while i < 4:
+    while i < 10:
         try:
             time.sleep(delaytime)
             analysis = subprocess.check_output(rest_api_cmd, stderr=subprocess.STDOUT, shell=True)
@@ -197,6 +197,7 @@ def analysis(upload_id):
         else:
             return False
         i += 1
+        time.sleep(delaytime*i)
         print("Analysis is fail, will try again.")
     raise Exception("Analysis is fail, please check your fossology server.")
 
@@ -224,7 +225,7 @@ def trigger(upload_id):
         if str(trigger["code"]) == "201":
             return trigger["message"].split("/")[-1]
         i += 1
-        time.sleep(delaytime)
+        time.sleep(delaytime*4)
         print("Trigger is fail, will try again.")
     raise Exception("Trigger is fail, please check your fossology server.")
 
@@ -239,7 +240,7 @@ def get_spdx(report_id, spdx_file):
     print("create spdx file for report :%s." % report_id)
     #print("Invoke rest_api_cmd = " + rest_api_cmd )
 
-    while i < 4:
+    while i < 2:
         time.sleep(delaytime)
         file = open(spdx_file,'wt')
         try:
@@ -271,7 +272,8 @@ def get_spdx(report_id, spdx_file):
             file.close()
             os.remove(spdx_file)
         i += 1
-    raise Exception("Get spdx failed, Please check your fossology server.")
+        time.sleep(delaytime*4)
+    return False
 
 def scanOne(srcArchive):
     srcArchive = os.path.basename(srcArchive)
@@ -298,6 +300,8 @@ def scanOne(srcArchive):
         report_id = trigger(upload_id)
         if report_id == False:
             return False
+        if i > 0:
+            time.sleep(delaytime*i)
         spdx2tv = get_spdx(report_id, spdx_file)
         if spdx2tv == False:
             print("get_spdx of %s is unnormal. Will try again!" % srcArchive)
