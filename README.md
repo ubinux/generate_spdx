@@ -1,6 +1,6 @@
 # 1. Introduction
 ***
-generate_spdx can be used to generate spdx files for source archives.
+generate_spdx can be used to upload source archives to fossology server and then download spdx files by REAT API.
 
 # 2. Overview
 ***
