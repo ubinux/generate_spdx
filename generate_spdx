@@ -5,11 +5,13 @@ import argparse
 import os
 import time
 import subprocess
+from argparse import RawTextHelpFormatter
 
-parser = argparse.ArgumentParser(description='Upload the OSS archives to fosslogy server and download spdx files.')
-parser.add_argument('-c', '--config', help='$TOEKN@fossology_server  \
-                    By default, $TOKEN will be read from environment. \
-                                fossology_server is 127.0.0.1')
+parser = argparse.ArgumentParser(description='Upload the OSS archives to fosslogy server and download spdx files.', formatter_class=RawTextHelpFormatter)
+parser.add_argument('-c', '--config', help='$TOEKN@fossology_server\n\
+By default:\n\
+$TOKEN will be read from environment.\n\
+fossology_server is 127.0.0.1')
 parser.add_argument('src', help="The OSS archive or directory includes OSS archives that want to be scanned.")
 parser.add_argument('-d', '--dst', default=None, help="The directory where spdx files be output. By default, spdx file will output into the current directory.")
 parser.add_argument('-f', '--folder', default=None, help="Which directory on fossology server where OSS archives want to be uploaded.")
