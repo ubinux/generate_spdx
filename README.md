@@ -33,8 +33,10 @@ positional arguments:
 optional arguments:
   -h, --help            show this help message and exit
   -c CONFIG, --config CONFIG
-                        $TOEKN@fossology_server By default, $TOKEN will be
-                        read from environment. fossology_server is 127.0.0.1
+                        $TOEKN@fossology_server 
+                        By default:
+                        $TOKEN will be read from environment.
+                        fossology_server is 127.0.0.1.
   -d DST, --dst DST     The directory where spdx files be output. By default,
                         spdx file will output into the current directory.
   -f FOLDER, --folder FOLDER
