@@ -1,6 +1,6 @@
 # 1. Introduction
 ***
-generate_spdx can be used to uoload source archives to fissology, and then, get spdx files by fossdriver.
+generate_spdx can be used to upload source archives to fissology, and then, get spdx files by fossdriver.
 
 # 2. Overview
 ***
