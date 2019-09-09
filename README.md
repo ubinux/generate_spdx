@@ -50,3 +50,5 @@ optional arguments:
   -r, --reuse           Reuse prior results from an earlier scan.
 
 ```
+Note
+- For those huge source archives, maybe fail. Please increase the value of delaytime defined the script and have a try again.
