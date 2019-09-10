@@ -20,6 +20,11 @@ Then copy the created token.
 
 # 3. Usage
 
+If you don't want to input $TOKEN every time, you can set $TOKEN in your terminal likes the following:
+```
+$ export TOKEN=eyJ0eXAiOiJKV...
+```
+
 ```
 $ ./generate_spdx  --help
 usage: generate_spdx [-h] [-c CONFIG] [-d DST] [-f FOLDER] [-r] src
