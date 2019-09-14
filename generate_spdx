@@ -4,6 +4,11 @@
 import argparse
 import os
 from argparse import RawTextHelpFormatter
+import logging
+
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
+logging.basicConfig(filename="./generate_spdx.log",level=logging.INFO)
 
 tempConfFile="./.fossdriverrc"
 
@@ -103,7 +108,7 @@ else:
     if os.path.exists(configPath) == False:
         print("config file : %s is not exist!\n" % configPath)
         raise Exception("False")
-print("Config file***************** %s" % configPath) 
+print("Config file :  %s" % configPath) 
 
 if args.src is not None:
     srcPath = os.path.abspath(args.src)
@@ -127,7 +132,7 @@ if args.dst is not None:
     dstPath = os.path.abspath(args.dst)
 if os.path.exists(dstPath) == False:
     os.makedirs(dstPath)
-print("SPDX files output***************** %s" % dstPath)
+print("SPDX files output to : %s" % dstPath)
 
 if args.reuse:
     reuse = True
