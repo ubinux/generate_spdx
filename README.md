@@ -1,6 +1,6 @@
 # 1. Introduction
 ***
-generate_spdx can be used to upload source archives to fissology, and then, get spdx files by fossdriver.
+get_spdx can be used to upload source archives to fissology, and then, get spdx files by fossdriver.
 
 # 2. Overview
 ***
@@ -15,8 +15,8 @@ Set up fossology server reference to https://www.fossology.org/get-started/.
 # 4. Usage
 
 ```
-./generate_spdx --help
-usage: generate_spdx [-h] [-c CONFIG] [-d DST] [-f FOLDER] [-r] src
+./get_spdx --help
+usage: get_spdx [-h] [-c CONFIG] [-d DST] [-f FOLDER] [-r] src
 
 Upload the OSS archives to fosslogy server and download spdx files.
 
