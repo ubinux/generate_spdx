@@ -13,9 +13,8 @@ if [[ "$(type -t pip3)" == "" ]]; then
     exit 1
 fi
 
-EPO=$(mktemp -d)
-echo "[$0] git clone https://github.com/fossology/fossdriver.git $REPO"
-git clone https://github.com/fossology/fossdriver.git $REPO || exit 1
+echo "[$0] git clone https://github.com/fossology/fossdriver.git"
+git clone https://github.com/fossology/fossdriver.git || exit 1
 
 pip3 install --user requests
 pip3 install --user requests-toolbelt

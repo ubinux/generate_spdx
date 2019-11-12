@@ -100,16 +100,6 @@ def scanDir(srcArchiveDir, dest, fossServer, fossSverFolder, reuse):
 
 
 """Check parameters"""
-if args.config is not None:
-    configPath = os.path.abspath(tempConfFile)
-    if write_config(args.config) == False:
-        raise Exception("Parameter of fosslogy server is wrong!\n")
-else:
-    if os.path.exists(configPath) == False:
-        print("config file : %s is not exist!\n" % configPath)
-        raise Exception("False")
-print("Config file :  %s" % configPath) 
-
 if args.src is not None:
     srcPath = os.path.abspath(args.src)
     try:
@@ -123,6 +113,16 @@ if args.src is not None:
     from fossdriver.server import FossServer
     from fossdriver.tasks import (CreateFolder, Upload, Scanners, Copyright,
                         Reuse, BulkTextMatch, SPDXTV)
+
+if args.config is not None:
+    configPath = os.path.abspath(tempConfFile)
+    if write_config(args.config) == False:
+        raise Exception("Parameter of fosslogy server is wrong!\n")
+else:
+    if os.path.exists(configPath) == False:
+        print("config file : %s is not exist!\n" % configPath)
+        raise Exception("False")
+print("Config file :  %s" % configPath)
 
 if os.path.exists(srcPath) == False:
     print("%s is not exist!\n" % srcPath)
