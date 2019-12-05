@@ -1,128 +1,42 @@
-#!/usr/bin/python3
+#!/usr/bin/python
 # encoding: utf-8
 
 import argparse
 import os
+import subprocess
 from argparse import RawTextHelpFormatter
 import logging
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
-logging.basicConfig(filename="./generate_spdx.log",level=logging.INFO)
+logging.basicConfig(filename="./get_spdx.log",level=logging.INFO)
 
-tempConfFile="./.fossdriverrc"
-
-parser = argparse.ArgumentParser(description='Upload the OSS archives to fosslogy server and download spdx files.', formatter_class=RawTextHelpFormatter)
-parser.add_argument('-c', '--config', help='username:passwd@fossology_server \n\
-By default, ~/.fossdriverrc will be read.')
-parser.add_argument('src', help="The OSS archive or directory includes OSS archives that want to be scanned.")
+parser = argparse.ArgumentParser(description='Scan OSS directory by scancode.', formatter_class=RawTextHelpFormatter)
+parser.add_argument('src', help="The OSS directory to be scanned.")
 parser.add_argument('-d', '--dst', default=None, help="The directory where spdx files be output. By default, spdx file will output into the current directory.")
-parser.add_argument('-f', '--folder', default=None, help="Which directory on fossology server where OSS archives want to be uploaded.")
-parser.add_argument('-r', '--reuse', action="store_true", help="Reuse prior results from an earlier scan.")
 
 args = parser.parse_args()
+srcPath = os.path.abspath(args.src)
+dstPath = os.path.abspath('./')
+
+if os.path.isdir(srcPath) != True:
+    raise Exception("%s is not a directory.\n", srcPath)
+if args.dst is not None:
+    dstPath = os.path.abspath(args.dst)
+if os.path.exists(dstPath) == False:
+    os.makedirs(dstPath)
+
+currDir = os.path.abspath(os.curdir)
+srcDir = os.path.dirname(srcPath)
+srcName = os.path.basename(srcPath)
+spdx_file = srcName + ".spdx"
+spdx_file = os.path.join(dstPath, spdx_file)
 
 """Default config"""
-configPath = os.path.join(os.path.expanduser('~'),".fossdriverrc")
 dstPath = os.path.abspath('./')
-fossSverParFolder = None
-fossSverFolder = "Software Repository"
-reuse = False
-
-def write_config(str_access):
-    """
-    If user input how to access fosslogy server by --config,
-    this function will analysis and write to ./.fossdriverrc.
-    """
-    [userPw, url] = str_access.split('@',1)
-    if url == None:
-        print("Url is error, make sure you enter correct url for fossology server.\n")
-        return False
-    if userPw == None:
-        print("username or password is error, make sure you enter correct username or password for fossology server.\n")
-        return False
-
-    [user,pw] = userPw.split(':',1)
-    if user == None:
-        print("username is error, make sure you enter correct username for fossology server.\n")
-        return False
-    if pw == None:
-        print("password is error, make sure you enter correct password for fossology server.\n")
-        return False
-
-    file_open = open(configPath, 'w')
-    try:
-        file_open.write('{\n')
-        file_open.write('    \"serverUrl\": \"http://' + url + '\",\n')
-        file_open.write('    \"username\": \"' + user + '\",\n')
-        file_open.write('    \"password\": \"' + pw + '\"\n')
-        file_open.write('}\n')
-    except TypeError as e:
-        print(e, '\n', 'write into config file %s failed.\n' % configPath)
-        return False
-    return True
-
-def scanOne(srcArchive, destDir, fossServer, fossSverFolder, reuse):
-    dest = srcArchive + ".spdx"
-    dest = os.path.join(destDir,dest)
-
-    if reuse:
-        if (Reuse(fossServer, srcArchive, fossSverFolder, srcArchive, fossSverFolder).run()  == True):
-            print("%s has been scanned before, so reuse prior results." % srcArchive)
-            SPDXTV(fossServer, srcArchive, fossSverFolder, dest).run()
-            return
-    print("Begin to upload: %s" % srcArchive)
-    Upload(fossServer, srcArchive, fossSverFolder).run()
-    print("Begin to scan: %s" % srcArchive)
-    Scanners(fossServer, srcArchive, fossSverFolder).run()
-    Copyright(fossServer, srcArchive, fossSverFolder).run()
-    SPDXTV(fossServer, srcArchive, fossSverFolder, dest).run()
-
-
-def scanSrc(srcArchivePath, dest, fossServer, fossSverFolder, reuse):
-    currDir = os.path.abspath(os.curdir)
-    srcDir = os.path.dirname(srcArchivePath)
-    srcArchive = os.path.basename(srcArchivePath)
-    os.chdir(srcDir)
-    scanOne(srcArchive, dest, fossServer, fossSverFolder, reuse)
-    os.chdir(currDir)
-
-def scanDir(srcArchiveDir, dest, fossServer, fossSverFolder, reuse):
-    currDir = os.path.abspath(os.curdir)
-    #print("currDir = %s \n" % currDir)
-    #print("srcArchiveDir = %s \n" % srcArchiveDir)
-    os.chdir(srcArchiveDir)
-    list = os.listdir(srcArchiveDir)
-    for i in list:
-        #print("Begin to scan %s \n" % i)
-        scanOne(i, dest, fossServer, fossSverFolder, reuse)
-    os.chdir(currDir)
-
 
 """Check parameters"""
-if args.src is not None:
-    srcPath = os.path.abspath(args.src)
-    try:
-        from fossdriver.config import FossConfig
-    except ImportError:
-        os.system('./install-fossdriver.sh')
-    else:
-        print("fossdriver has been installed, do nothing.")
-
-    from fossdriver.config import FossConfig
-    from fossdriver.server import FossServer
-    from fossdriver.tasks import (CreateFolder, Upload, Scanners, Copyright,
-                        Reuse, BulkTextMatch, SPDXTV)
-
-if args.config is not None:
-    configPath = os.path.abspath(tempConfFile)
-    if write_config(args.config) == False:
-        raise Exception("Parameter of fosslogy server is wrong!\n")
-else:
-    if os.path.exists(configPath) == False:
-        print("config file : %s is not exist!\n" % configPath)
-        raise Exception("False")
-print("Config file :  %s" % configPath)
+os.system('./install-scancode.sh')
 
 if os.path.exists(srcPath) == False:
     print("%s is not exist!\n" % srcPath)
@@ -134,28 +48,11 @@ if os.path.exists(dstPath) == False:
     os.makedirs(dstPath)
 print("SPDX files output to : %s" % dstPath)
 
-if args.reuse:
-    reuse = True
-
-if "http_proxy" in os.environ:
-    del os.environ['http_proxy']
-if "https_proxy" in os.environ:
-    del os.environ['https_proxy']
-
-config = FossConfig()
-config.configure(configPath)
-server = FossServer(config)
-server.Login()
-
-if args.folder is not None:
-    fossSverParFolder = fossSverFolder
-    fossSverFolder = args.folder
-    """create a new folder on the server"""
-    CreateFolder(server, fossSverFolder, fossSverParFolder).run()
-
 """Begin to scan src"""
-if os.path.isdir(srcPath):
-    scanDir(srcPath, dstPath, server, fossSverFolder, reuse)
-else:
-    scanSrc(srcPath, dstPath, server, fossSverFolder, reuse)
 
+scancode_cmd = "./scancode-toolkit/scancode -lpci --spdx-tv " + spdx_file + " " + srcName
+
+try:
+    res = subprocess.check_output(scancode_cmd, stderr=subprocess.STDOUT, shell=True)
+except subprocess.CalledProcessError as e:
+    raise Exception("Fail to invoke scancode.\n")
