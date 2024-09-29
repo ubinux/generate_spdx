@@ -30,7 +30,7 @@ folder_id = 1
 #By default, previous data of fossology will not be used.
 reuse = False
 
-delaytime = 30
+delaytime = 100
 
 if args.config is not None:
     [token, url] = args.config.split('@',1)
@@ -59,7 +59,7 @@ if args.folder is not None:
                     + " -H \"Authorization: Bearer " + token + "\"" \
                     + " --noproxy 127.0.0.1"
     print("Get folder list ")
-    #print("Invoke rest_api_cmd = " + rest_api_cmd )
+    print("Invoke rest_api_cmd = " + rest_api_cmd )
     
     try:
         has_uploaded = subprocess.check_output(rest_api_cmd, stderr=subprocess.STDOUT, shell=True)
@@ -70,8 +70,8 @@ if args.folder is not None:
     has_uploaded = has_uploaded.replace("null", "None")
     print("Get uploaded as following: ")
     print(has_uploaded)
+    has_uploaded = has_uploaded.replace("null", "None")
     has_uploaded = eval(has_uploaded)
-
     if len(has_uploaded) == 0:
         raise Exception("Didn't get folder list. Please check your fossology server.\n")
 
@@ -88,7 +88,7 @@ if args.folder is not None:
                        + " -H \"Authorization: Bearer " + token + "\"" \
                        + " --noproxy 127.0.0.1"
         print("Create folder.")
-        #print("Invoke rest_api_cmd = " + rest_api_cmd )
+        print("Invoke rest_api_cmd = " + rest_api_cmd )
     
         try:
             create_folder = subprocess.check_output(rest_api_cmd, stderr=subprocess.STDOUT, shell=True)
@@ -96,6 +96,7 @@ if args.folder is not None:
             raise Exception("Create folder fail. Please check your fossplogy.\n")
 
         create_folder = str(create_folder, encoding = "utf-8")
+        create_folder = create_folder.replace("null", "None")
         create_folder = eval(create_folder)
         #print("create_folder = ")
         print(create_folder)
@@ -115,7 +116,7 @@ def has_uploaded(tar_file):
                    + " -H \"Authorization: Bearer " + token + "\"" \
                    + " --noproxy 127.0.0.1"
     print("Check if %s has uploaded." % file_name)
-    #print("Invoke rest_api_cmd = " + rest_api_cmd )
+    print("Invoke rest_api_cmd = " + rest_api_cmd )
 
     try:
        has_uploaded_ret  = subprocess.check_output(rest_api_cmd, stderr=subprocess.STDOUT, shell=True)
@@ -123,15 +124,20 @@ def has_uploaded(tar_file):
         raise Exception("Get uploaded info fail. Please check your fossplogy.\n")
 
     has_uploaded_ret = str(has_uploaded_ret, encoding = "utf-8")
+    has_uploaded_ret = has_uploaded_ret.replace("null", "None")
     has_uploaded_ret = eval(has_uploaded_ret)
     if len(has_uploaded_ret) == 0:
         print("No archive has been uploaded.")
         return False
+#    upload_list, _ = foss.list_uploads(page_size=1, all_pages=True)
+#    upload = None
+#    print("Check tarball: %s ,has been uploaded?" % filename)
     for i in range(0, len(has_uploaded_ret)):
         if has_uploaded_ret[i]["uploadname"] == file_name:
-            if str(os.path.getsize(tar_file)) == str(has_uploaded_ret[i]["filesize"]) and str(has_uploaded_ret[i]["folderid"]) == str(folder_id):
+            if str(has_uploaded_ret[i]["folderid"]) == str(folder_id):
                 print("Find " + file_name + " in fossology server \"Software Repository\" folder. So, reuse previous data.")
                 return has_uploaded_ret[i]["id"]
+
     print("%s has not been uploaded to %s folder before." % (tar_file, folder))
     return False
 
@@ -144,10 +150,11 @@ def upload(tar_file):
                     + " -H \'uploadDescription: created by REST\'" \
                     + " -H \'public: public\'"  \
                     + " -H \'Content-Type: multipart/form-data\'"  \
+                    + " -H \'uploadType: file'" \
                     + " -F \'fileInput=@\"" + tar_file + "\";type=application/octet-stream\'" \
                     + " --noproxy 127.0.0.1"
     print("Upload %s." % tar_file)
-    #print("Invoke rest_api_cmd = " + rest_api_cmd )
+    print("Invoke rest_api_cmd = " + rest_api_cmd )
 
     while i < 10:
         time.sleep(delaytime)
@@ -158,6 +165,7 @@ def upload(tar_file):
         upload = str(upload, encoding = "utf-8")
         print("Upload : ")
         print(upload)
+        upload = upload.replace("null", "None")
         upload = eval(upload)
         if str(upload["code"]) == "201":
             #print("Upload Id = %s " % upload["message"])
@@ -188,6 +196,7 @@ def analysis(upload_id):
         analysis = str(analysis, encoding = "utf-8")
         print("analysis : ")
         print(analysis)
+        analysis = analysis.replace("null", "None")
         analysis = eval(analysis)
         if str(analysis["code"]) == "201":
             return analysis["message"]
@@ -219,6 +228,7 @@ def trigger(upload_id):
             raise Exception("Trigger failed: \n%s" % e.output.decode("utf-8"))
         time.sleep(delaytime)
         trigger = str(trigger, encoding = "utf-8")
+        trigger = trigger.replace("null", "None")
         trigger = eval(trigger)
         print("trigger result : ")
         print(trigger)
